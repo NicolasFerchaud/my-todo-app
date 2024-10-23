@@ -1,2 +1,52 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script context="module">
+  export async function load({ fetch }) {
+    const res = await fetch('/api/tasks');
+    const tasks = await res.json();
+
+    return {
+      props: {
+        tasks
+      }
+    };
+  }
+</script>
+
+<script>
+  export let tasks = [];
+  let newTask = { title: '', description: '' };
+
+  async function createTask() {
+    await fetch('/api/tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newTask)
+    });
+    newTask = { title: '', description: '' };
+    loadTasks(); // Appelez loadTasks ici si vous voulez recharger les tâches après la création.
+  }
+
+  async function deleteTask(id) {
+    await fetch('/api/tasks', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
+    loadTasks(); // Recharger les tâches après la suppression.
+  }
+</script>
+
+<h1>Tâches</h1>
+
+<input bind:value={newTask.title} placeholder="Titre" />
+<input bind:value={newTask.description} placeholder="Description" />
+<button on:click={createTask}>Créer une tâche</button>
+
+<ul>
+  {#each tasks as task}
+    <li>
+      <h2>{task.title}</h2>
+      <p>{task.description}</p>
+      <button on:click={() => deleteTask(task.id)}>Supprimer</button>
+    </li>
+  {/each}
+</ul>
