@@ -15,6 +15,12 @@
   export let tasks = [];
   let newTask = { title: '', description: '' };
 
+  async function loadTasks() {
+    const res = await fetch('/api/tasks');
+    const tasks = await res.json();
+    return tasks;
+  }
+
   async function createTask() {
     await fetch('/api/tasks', {
       method: 'POST',
@@ -22,7 +28,8 @@
       body: JSON.stringify(newTask)
     });
     newTask = { title: '', description: '' };
-    loadTasks(); // Appelez loadTasks ici si vous voulez recharger les tâches après la création.
+    tasks = await loadTasks();
+    // loadTasks(); // Appelez loadTasks ici si vous voulez recharger les tâches après la création.
   }
 
   async function deleteTask(id) {
@@ -31,7 +38,8 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id })
     });
-    loadTasks(); // Recharger les tâches après la suppression.
+    tasks = await loadTasks();
+    // loadTasks(); // Recharger les tâches après la suppression.
   }
 </script>
 
